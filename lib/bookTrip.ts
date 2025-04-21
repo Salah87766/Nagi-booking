@@ -10,7 +10,5 @@ export async function bookTrip(data: {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   })
-
-  const result = await res.json()
-  return result
+  return await res.json()
 }
