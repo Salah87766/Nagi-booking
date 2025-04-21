@@ -1,12 +1,10 @@
-type Props = {
-  params: any;
-};
+import SeatSelector from '@/components/SeatSelector'
 
-export default function BookingPage({ params }: Props) {
+export default function BookingPage({ params }: { params: { tripId: string } }) {
   return (
     <div className="p-4">
-      <h1 className="text-xl font-bold">Booking Trip: {params?.tripId}</h1>
-      <p>Seat selection and booking logic goes here.</p>
+      <h1 className="text-xl font-bold mb-4">Booking for Trip ID: {params.tripId}</h1>
+      <SeatSelector tripId={params.tripId} />
     </div>
-  );
+  )
 }
