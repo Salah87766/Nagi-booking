@@ -1,79 +1,73 @@
-'use client'
+"use client"
 
-import { useState } from 'react'
-import { bookTrip } from '@/lib/bookTrip'
+import { useState } from "react"
+import { bookTrip } from "@/lib/bookTrip"
 
-export default function BookingForm({ tripId }: { tripId: string }) {
-  const [form, setForm] = useState({ seat: 1, name: '', phone: '', email: '' })
+type Props = {
+  tripId: string
+  seat: number
+}
+
+export default function BookingForm({ tripId, seat }: Props) {
+  const [form, setForm] = useState({
+    name: '',
+    phone: '',
+    email: ''
+  })
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
-  const [error, setError] = useState('')
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  async function handleSubmit(e: any) {
     e.preventDefault()
     setLoading(true)
-    setError('')
-    const res = await bookTrip({ ...form, tripId, seat: Number(form.seat) })
+
+    const res = await bookTrip({ ...form, tripId, seat })
     setLoading(false)
-    if (res.success) setSuccess(true)
-    else setError('Failed to book seat')
+
+    if (res.success) {
+      setSuccess(true)
+    } else {
+      alert("Booking failed. Try again.")
+    }
+  }
+
+  if (success) {
+    return <div className="p-4 bg-green-100 rounded">Booking confirmed for seat {seat}!</div>
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-4 border rounded">
-      <div>
-        <label>Seat</label>
-        <input
-          type="number"
-          name="seat"
-          min={1}
-          max={61}
-          required
-          className="border px-2 py-1 w-full"
-          value={form.seat}
-          onChange={handleChange}
-        />
-      </div>
-      <div>
-        <label>Name</label>
-        <input
-          name="name"
-          required
-          className="border px-2 py-1 w-full"
-          value={form.name}
-          onChange={handleChange}
-        />
-      </div>
-      <div>
-        <label>Phone</label>
-        <input
-          name="phone"
-          required
-          className="border px-2 py-1 w-full"
-          value={form.phone}
-          onChange={handleChange}
-        />
-      </div>
-      <div>
-        <label>Email</label>
-        <input
-          type="email"
-          name="email"
-          required
-          className="border px-2 py-1 w-full"
-          value={form.email}
-          onChange={handleChange}
-        />
-      </div>
-      <button type="submit" disabled={loading} className="bg-blue-600 text-white px-4 py-2">
-        {loading ? 'Booking...' : 'Book Now'}
+    <form onSubmit={handleSubmit} className="space-y-3">
+      <input
+        required
+        type="text"
+        placeholder="Name"
+        className="w-full border p-2 rounded"
+        value={form.name}
+        onChange={e => setForm({ ...form, name: e.target.value })}
+      />
+      <input
+        required
+        type="tel"
+        placeholder="Phone"
+        className="w-full border p-2 rounded"
+        value={form.phone}
+        onChange={e => setForm({ ...form, phone: e.target.value })}
+      />
+      <input
+        required
+        type="email"
+        placeholder="Email"
+        className="w-full border p-2 rounded"
+        value={form.email}
+        onChange={e => setForm({ ...form, email: e.target.value })}
+      />
+      <button
+        type="submit"
+        disabled={loading}
+        className="bg-black text-white p-2 rounded w-full"
+      >
+        {loading ? 'Booking...' : `Confirm Seat ${seat}`}
       </button>
-      {success && <p className="text-green-600">Booking successful!</p>}
-      {error && <p className="text-red-600">{error}</p>}
     </form>
   )
 }
