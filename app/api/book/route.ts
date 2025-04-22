@@ -1,33 +1,25 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
 
 export async function POST(req: Request) {
-  const body = await req.json()
-  const { tripId, seat, name, phone, email } = body
-
-  if (!tripId || !seat || !name || !phone) {
-    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
-  }
-
   try {
-    const seatRecord = await prisma.seat.updateMany({
-      where: { tripId, number: seat, booked: false },
-      data: {
-        booked: true,
-        name,
-        phone,
-        email,
-        bookedAt: new Date()
-      }
+    const data = await req.json()
+    const { tripId, seat, name, phone, email } = data
+
+    // Check if seat already booked
+    const existing = await prisma.booking.findFirst({
+      where: { tripId, seat }
     })
 
-    if (seatRecord.count === 0) {
-      return NextResponse.json({ error: 'Seat already booked' }, { status: 409 })
+    if (existing) {
+      return NextResponse.json({ error: 'Seat already booked' }, { status: 400 })
     }
 
-    return NextResponse.json({ success: true })
+    const booking = await prisma.booking.create({
+      data: { tripId, seat, name, phone, email }
+    })
+
+    return NextResponse.json({ success: true, booking })
   } catch (err) {
     console.error(err)
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
