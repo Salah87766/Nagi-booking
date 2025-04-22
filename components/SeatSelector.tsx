@@ -1,47 +1,40 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import BookingForm from "./BookingForm"
 
 type Props = { tripId: string }
 
-type Booking = {
-  seat: number
-}
-
 export default function SeatSelector({ tripId }: Props) {
-  const [selected, setSelected] = useState<number | null>(null)
-  const [booked, setBooked] = useState<number[]>([])
-
-  useEffect(() => {
-    fetch(`/api/booked?tripId=${tripId}`)
-      .then(res => res.json())
-      .then(data => setBooked(data.map((b: Booking) => b.seat)))
-  }, [tripId])
+  const [selectedSeat, setSelectedSeat] = useState<number | null>(null)
 
   return (
-    <div>
+    <div className="p-4">
+      <h2 className="text-xl font-bold mb-4">Select a Seat</h2>
+
       <div className="grid grid-cols-6 gap-2 mb-6">
-        {Array.from({ length: 61 }, (_, i) => i + 1).map(seat => {
-          const isBooked = booked.includes(seat)
-          const isSelected = selected === seat
+        {Array.from({ length: 61 }).map((_, i) => {
+          const seat = i + 1
           return (
             <button
               key={seat}
-              className={`p-2 rounded text-sm ${
-                isBooked ? 'bg-gray-400' :
-                isSelected ? 'bg-green-500 text-white' :
-                'bg-blue-500 text-white'
+              className={`border p-2 rounded ${
+                selectedSeat === seat ? 'bg-blue-600 text-white' : 'bg-gray-100'
               }`}
-              disabled={isBooked}
-              onClick={() => setSelected(seat)}
+              onClick={() => setSelectedSeat(seat)}
             >
               {seat}
             </button>
           )
         })}
       </div>
-      {selected && <BookingForm tripId={tripId} seat={selected} />}
+
+      {selectedSeat && (
+        <div className="mt-6">
+          <h3 className="font-semibold text-lg mb-2">Confirm Booking for Seat {selectedSeat}</h3>
+          <BookingForm tripId={tripId} seat={selectedSeat} />
+        </div>
+      )}
     </div>
   )
 }
