@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x", "linux-musl"]
 }
 
 datasource db {
@@ -7,12 +8,33 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Booking {
-  id        Int      @id @default(autoincrement())
+model Trip {
+  id          String   @id @default(cuid())
+  origin      String
+  destination String
+  date        DateTime
+  price       Float
+  busNumber   String
+  seats       Seat[]
+  createdAt   DateTime @default(now())
+}
+
+model Seat {
+  id        String   @id @default(cuid())
+  number    Int
+  booked    Boolean  @default(false)
+  trip      Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
   tripId    String
-  seat      Int
+  name      String?
+  phone     String?
+  email     String?
+  bookedAt  DateTime?
+}
+
+model Profile {
+  id        String   @id @default(cuid())
   name      String
-  phone     String
-  email     String
+  email     String   @unique
+  phone     String?
   createdAt DateTime @default(now())
 }
