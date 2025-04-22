@@ -1,11 +1,9 @@
-"use client"
-
-import SeatSelector from "../../../components/SeatSelector"
+import SeatSelector from "@/components/SeatSelector"
 
 export default function BookingPage({ params }: { params: { tripId: string } }) {
   return (
-    <div className="p-4">
-      <h1 className="text-xl font-bold mb-4">Booking Trip: {params.tripId}</h1>
+    <div className="max-w-2xl mx-auto mt-10">
+      <h1 className="text-2xl font-bold mb-6">Booking for Trip: {params.tripId}</h1>
       <SeatSelector tripId={params.tripId} />
     </div>
   )
