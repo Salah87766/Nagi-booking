@@ -38,3 +38,13 @@ model Profile {
   phone     String?
   createdAt DateTime @default(now())
 }
+
+model Booking {
+  id        String   @id @default(cuid())
+  tripId    String
+  seat      Int
+  name      String
+  phone     String
+  email     String
+  createdAt DateTime @default(now())
+}
