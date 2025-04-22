@@ -3,71 +3,82 @@
 import { useState } from "react"
 import { bookTrip } from "@/lib/bookTrip"
 
-type Props = {
-  tripId: string
-  seat: number
-}
-
-export default function BookingForm({ tripId, seat }: Props) {
-  const [form, setForm] = useState({
-    name: '',
-    phone: '',
-    email: ''
-  })
+export default function BookingForm({ tripId }: { tripId: string }) {
+  const [seat, setSeat] = useState<number | null>(null)
+  const [name, setName] = useState("")
+  const [phone, setPhone] = useState("")
+  const [email, setEmail] = useState("")
   const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
+  const [message, setMessage] = useState("")
 
-  async function handleSubmit(e: any) {
-    e.preventDefault()
+  const handleSubmit = async () => {
+    if (!seat || !name || !phone || !email) {
+      setMessage("Please fill in all fields and select a seat.")
+      return
+    }
+
     setLoading(true)
-
-    const res = await bookTrip({ ...form, tripId, seat })
-    setLoading(false)
-
-    if (res.success) {
-      setSuccess(true)
-    } else {
-      alert("Booking failed. Try again.")
+    try {
+      const result = await bookTrip({ tripId, seat, name, phone, email })
+      if (result.success) {
+        setMessage("Booking successful!")
+      } else {
+        setMessage("Booking failed. Try another seat.")
+      }
+    } catch {
+      setMessage("Server error.")
+    } finally {
+      setLoading(false)
     }
   }
 
-  if (success) {
-    return <div className="p-4 bg-green-100 rounded">Booking confirmed for seat {seat}!</div>
-  }
-
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
-      <input
-        required
-        type="text"
-        placeholder="Name"
-        className="w-full border p-2 rounded"
-        value={form.name}
-        onChange={e => setForm({ ...form, name: e.target.value })}
-      />
-      <input
-        required
-        type="tel"
-        placeholder="Phone"
-        className="w-full border p-2 rounded"
-        value={form.phone}
-        onChange={e => setForm({ ...form, phone: e.target.value })}
-      />
-      <input
-        required
-        type="email"
-        placeholder="Email"
-        className="w-full border p-2 rounded"
-        value={form.email}
-        onChange={e => setForm({ ...form, email: e.target.value })}
-      />
+    <div className="space-y-4">
+      <div>
+        <label>Seat Number</label>
+        <input
+          type="number"
+          value={seat || ""}
+          onChange={e => setSeat(parseInt(e.target.value))}
+          className="border p-2 w-full"
+          placeholder="Enter seat number"
+        />
+      </div>
+      <div>
+        <input
+          type="text"
+          placeholder="Full Name"
+          value={name}
+          onChange={e => setName(e.target.value)}
+          className="border p-2 w-full"
+        />
+      </div>
+      <div>
+        <input
+          type="text"
+          placeholder="Phone"
+          value={phone}
+          onChange={e => setPhone(e.target.value)}
+          className="border p-2 w-full"
+        />
+      </div>
+      <div>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          className="border p-2 w-full"
+        />
+      </div>
       <button
-        type="submit"
+        onClick={handleSubmit}
         disabled={loading}
-        className="bg-black text-white p-2 rounded w-full"
+        className="bg-blue-600 text-white px-4 py-2 rounded"
       >
-        {loading ? 'Booking...' : `Confirm Seat ${seat}`}
+        {loading ? "Booking..." : "Confirm Booking"}
       </button>
-    </form>
+      {message && <p className="text-sm text-center mt-2">{message}</p>}
+    </div>
   )
 }
